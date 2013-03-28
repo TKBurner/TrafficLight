@@ -1,4 +1,30 @@
 module TL
+	TL::Go = "Green"
+	TL::Wait = "amber"
+	TL::Stop = "red"
+end
+class TrafficLight
+	include TL
+	include Enumerable
+	def each
+    yield [true, false, false]
+    yield [true, true, false]
+    yield [false, false, true]
+    yield [false, true, false]
+  end
+end
+x = TrafficLight.new.map {|state| state }
+
+puts x[3][0]
+i = 0
+while i<100
+	puts x[i%4][(i%3)]
+	i += 1
+end
+
+
+
+module TL
   TL::Go = "#00FF30"
   TL::Wait = "#FFFC00"
   TL::Stop = "#FF0000"
@@ -52,6 +78,8 @@ class Bulb < Shoes::Shape
   end  
 end
 
+
+
 Shoes.app :title => "My Amazing Traffic Light", :width => 150, :height => 250 do
   background "000", :curve => 10, :margin => 25  
   stroke black    
@@ -62,11 +90,34 @@ Shoes.app :title => "My Amazing Traffic Light", :width => 150, :height => 250 do
   @bottom = Bulb.new self, 50, 160, TL::Go, false
   
   i=1
+  j=0
   x = @traffic_light.map {|state| state }
   click do
-    @top.bulb_colour(x[i%4][0])
-    @middle.bulb_colour(x[i%4][1])
-    @bottom.bulb_colour(x[i%4][2])
+    @top.bulb_colour(x[i%4][j%3])
+    j+= 1
+    @middle.bulb_colour(x[i%4][j%3])
+    j +=1
+    @bottom.bulb_colour(x[i%4][j%3])
     i +=1
+    j +=1
+    # case i%4
+    #     when 1
+    #   @bottom.bulb_colour(false)
+    #   @top.bulb_colour(true)
+    #   @middle.bulb_colour(true)
+    #   when 2
+    #    @bottom.bulb_colour(true)
+    #   @top.bulb_colour(false)
+    #   @middle.bulb_colour(false)
+    # when 3
+    #      @bottom.bulb_colour(false)
+    #   @top.bulb_colour(false)
+    #   @middle.bulb_colour(true)
+    # else
+    #    @bottom.bulb_colour(false)
+    #   @top.bulb_colour(true)
+    #   @middle.bulb_colour(false)
+    # end
+
   end
 end
