@@ -1,6 +1,12 @@
+module TL
+  TL::Go = "#00FF30"
+  TL::Wait = "#FFFC00"
+  TL::Stop = "#FF0000"
+end
+
 class TrafficLight  
   include Enumerable
-
+  include TL
   def each
     yield [true, false, false]
     yield [true, true, false]
@@ -14,13 +20,16 @@ class Bulb < Shoes::Shape
   attr_accessor :left
   attr_accessor :top
   attr_accessor :switched_on
+  attr_accessor :color
+  include TL
   
-  def initialize(stack, left, top, switched_on = false)    
+  def initialize(stack, left, top, color, switched_on = false)    
     self.stack = stack
     self.left = left    
     self.top = top
     self.switched_on = switched_on
-    draw left, top, bulb_colour
+    self.color = color
+    bulb_colour(switched_on)
   end
   
   # HINT: Shouldn't need to change this method
@@ -33,38 +42,56 @@ class Bulb < Shoes::Shape
     end
   end
   
-  def bulb_colour
-    "#999999"
+  def bulb_colour(switched_on)
+    x = unless switched_on
+        "#999999"
+      else
+        color
+    end
+    draw left, top, x
   end  
 end
-class GoBulb < Bulb
-   def bulb_colour
-     "#00FF30"
-   end
-  end
 
-class WaitBulb < Bulb
-  def bulb_colour
-     "#FFFC00"
-   end
-end
 
-class StopBulb < Bulb
-  def bulb_colour
-    "#FF0000"
-  end
-end
 
 Shoes.app :title => "My Amazing Traffic Light", :width => 150, :height => 250 do
   background "000", :curve => 10, :margin => 25  
   stroke black    
   
   @traffic_light = TrafficLight.new
-  @top = StopBulb.new self, 50, 40, true     
-  @middle = WaitBulb.new self, 50, 100, true
-  @bottom = GoBulb.new self, 50, 160, true
+  @top = Bulb.new self, 50, 40, TL::Stop, true     
+  @middle = Bulb.new self, 50, 100, TL::Wait, false
+  @bottom = Bulb.new self, 50, 160, TL::Go, false
   
+  i=1
+  j=0
+  x = @traffic_light.map {|state| state }
   click do
-    
+    @top.bulb_colour(x[i%4][j%3])
+    j+= 1
+    @middle.bulb_colour(x[i%4][j%3])
+    j +=1
+    @bottom.bulb_colour(x[i%4][j%3])
+    i +=1
+    j +=1
+    # case i%4
+    #     when 1
+    #   @bottom.bulb_colour(false)
+    #   @top.bulb_colour(true)
+    #   @middle.bulb_colour(true)
+    #   when 2
+    #    @bottom.bulb_colour(true)
+    #   @top.bulb_colour(false)
+    #   @middle.bulb_colour(false)
+    # when 3
+    #      @bottom.bulb_colour(false)
+    #   @top.bulb_colour(false)
+    #   @middle.bulb_colour(true)
+    # else
+    #    @bottom.bulb_colour(false)
+    #   @top.bulb_colour(true)
+    #   @middle.bulb_colour(false)
+    # end
+
   end
 end
